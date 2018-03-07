@@ -6,24 +6,20 @@
 # 'jekyll serve'. If you change this file, please restart the server process.
 
 # Site settings
-title: 徐代龙的技术专栏
-brief-intro: Android and Python Coder
+title: 孙宇的技术专栏
+brief-intro: 大数据/机器学习
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "https://643435675.github.io" # the base hostname & protocol for your site
+url: "https://sun86yu.github.io" # the base hostname & protocol for your site
 
 permalink: /:year/:month/:day/:title/
 
 # other links
-twitter_username: #gaohaoyang126
-facebook_username: #gaohaoyang.water
-github_username:  643435675
-email: 643435675@QQ.com
-weibo_username: 3115521wh
-zhihu_username: hll643435675
-linkedIn_username: gaohaoyang
+github_username:  sun86yu
+email: sunvipyu@gmail.com
+weibo_username: sun86yu
 dribbble_username:
 
-description_footer: 来自徐代龙的个人专栏！
+description_footer: 来自孙宇的IT提高班！
 
 # comments
 # two ways to comment, only choose one, and use your own short name
@@ -35,8 +31,7 @@ disqus_shortname: #gaohaoyang
 # 百度统计 id，将统计代码替换为自己的百度统计id，即
 # hm.src = "//hm.baidu.com/hm.js?xxxxxxxxxxxx";
 # xxxxx字符串
-baidu_tongji_id: 1cc1fc4b4b456bf7c99ce80aec5bf009
-google_analytics_id: UA-72449510-4 # google 分析追踪id
+baidu_tongji_id: c79d01ca717a761b47372732e495d097
 
 # Build settings
 markdown: kramdown
@@ -47,6 +42,22 @@ kramdown:
 
 # port
 # port: 1234
+links:
+  - name:         首页
+    url:          /
+    external:     false
+  - name:         分类
+    url:          /category/
+    external:     false
+  - name:         归档
+    url:          /archive/
+    external:     false
+  - name:         标签
+    url:          /tag/
+    external:     false
+  - name:         关于
+    url:          /about/
+    external:     false
 
 # url
 category_dir: category/
@@ -57,5 +68,5 @@ excerpt_separator: "\n\n\n\n"
 
 # paginate
 plugins: [jekyll-paginate]
-paginate: 6
+paginate: 10
 port: 4001
