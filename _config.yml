@@ -38,26 +38,27 @@ markdown: kramdown
 
 kramdown:
   input: GFM
+  extensions:
+    - autolink
+    - footnotes
+    - smart
+  use_coderay: true
   syntax_highlighter: rouge
+  coderay:
+    coderay_line_numbers:  nil
 
 # port
 # port: 1234
+
 links:
-  - name:         首页
-    url:          /
-    external:     false
-  - name:         分类
+  - title:         分类
     url:          /category/
-    external:     false
-  - name:         归档
+  - title:         归档
     url:          /archive/
-    external:     false
-  - name:         标签
+  - title:         标签
     url:          /tag/
-    external:     false
-  - name:         关于
+  - title:         关于我
     url:          /about/
-    external:     false
 
 # url
 category_dir: category/
