@@ -2,7 +2,7 @@
 layout: post
 book: true
 background-image: http://ot1cc1u9t.bkt.clouddn.com/17-7-16/91630214.jpg
-category: Memcached
+category: 缓存
 title: Memcached
 tags:
 - Memcached
