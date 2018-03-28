@@ -6,6 +6,7 @@ category: 工具
 title: Composer
 tags:
 - Composer
+- PHP
 ---
 
 用于 PHP 依赖关系处理的 Composer
