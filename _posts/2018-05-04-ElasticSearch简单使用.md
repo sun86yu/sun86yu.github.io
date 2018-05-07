@@ -3,7 +3,7 @@ layout: post
 book: true
 background-image: http://ot1cc1u9t.bkt.clouddn.com/17-7-16/91630214.jpg
 category: 工具
-title: ES
+title: ElasticSearch简单使用
 tags:
 - ES
 - Lucene
