@@ -5,14 +5,14 @@ background-image: http://ot1cc1u9t.bkt.clouddn.com/17-7-16/91630214.jpg
 category: 工具
 title: ElasticSearch简单使用
 tags:
-- ES
+- elasticsearch
 - Lucene
 - 全文搜索
 ---
 
-ES
+ElasticSearch
 ===
-ES 是使用 Java 编写的，并且采用了 Lucene 来实现索引与搜索的功能。在使用它做全文搜索时，只需要使用简单流畅的 RESTful API 即可，并不需要了解 Lucene 背后复杂的的运行原理。
+elasticsearch 是使用 Java 编写的，并且采用了 Lucene 来实现索引与搜索的功能。在使用它做全文搜索时，只需要使用简单流畅的 RESTful API 即可，并不需要了解 Lucene 背后复杂的的运行原理。
 
 它不仅可以实现全文搜索功能，还可以完成以下工作:
 
@@ -64,24 +64,24 @@ Java HotSpot(TM) 64-Bit Server VM (build 25.172-b11, mixed mode)
 
 说明安装成功。
 
-***ES 安装***
+***elasticsearch 安装***
 
 下载地址是: https://www.elastic.co/downloads/past-releases
 
-这里选择的是 6.2.4 版本: https://www.elastic.co/downloads/past-releases/ES-6-2-4s
+这里选择的是 6.2.4 版本: https://www.elastic.co/downloads/past-releases/elasticsearch-6-2-4s
 
 ```
 groupadd elsearch
 useradd elsearch -g elsearch -p ES
 
-wget https://artifacts.elastic.co/downloads/ES/ES-6.2.4.tar.gz
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-6.2.4.tar.gz
 tar -zxf ES-6.2.4.tar.gz
 mv ES-6.2.4 /usr/local/ES
 
-chown -R elsearch:elsearch /usr/local/ES
+chown -R elsearch:elsearch /usr/local/elasticsearch
 
 su elsearch
-/usr/local/ES/bin/ES
+/usr/local/elasticsearch/bin/elasticsearch
 ```
 
 运行成功后，会开启 9200， 9300 端口的监听。可以在本机执行 ```curl http://localhost:9200/``` 查看内容：
@@ -104,7 +104,7 @@ su elsearch
 }
 ```
 
-默认的时候，9200 端口是绑定在 127.0.0.1 的，无法在远程机器上访问。可以修改 /usr/local/ES/conf/ES.yml:
+默认的时候，9200 端口是绑定在 127.0.0.1 的，无法在远程机器上访问。可以修改 /usr/local/elasticsearch/conf/elasticsearch.yml:
 
 ```
 network.host: 0.0.0.0
@@ -117,7 +117,7 @@ http.port: 9200
 bound or publishing to a non-loopback address, enforcing bootstrap checks
 node validation exception
 [2] bootstrap checks failed
-[1]: max file descriptors [65535] for ES process is too low, increase to at least [65536]
+[1]: max file descriptors [65535] for elasticsearch process is too low, increase to at least [65536]
 [2]: max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
 ```
 更改 /etc/security/limits.conf， 在最后加上: 
@@ -136,7 +136,7 @@ node validation exception
 如果出现错误:
 
 ```
-java.lang.RuntimeException: can not run ES as root
+java.lang.RuntimeException: can not run elasticsearch as root
 ```
 
 可以新建一个用户，然后以它来执行。我们的步骤中已经新建了，所以没问题。解决所有问题后，可以在远程访问了：http://[服务器IP]:9200
