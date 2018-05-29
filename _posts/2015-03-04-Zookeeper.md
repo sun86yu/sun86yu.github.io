@@ -466,3 +466,197 @@ Server 组件是用来控制复制的启动和停止的。它会将每个复制�
 3. 获取当前所有的节点，得到个数；并获得根节点下需要的节点数。添加对子节点列表变更的监听。
 4. 如果当前节点数达不到需求数，进入等待。
 5. 接收到监听通知后，重复步骤 3。
+
+
+php 示例主从
+===
+
+编辑 ```worker.php```
+
+```php
+
+<?php
+ini_set('display_errors', '1');
+error_reporting(E_ALL);
+
+class Worker extends Zookeeper {
+	const CONTAINER = '/cluster';
+	protected $acl = array(
+		array(
+			'perms' => Zookeeper::PERM_ALL,
+			'scheme' => 'world',
+			'id' => 'anyone'
+		)
+	);
+	private $isLeader = false;
+	private $znode;
+
+	public function __construct($host = '', $watcher_cb = null, $recv_timeout = 1000) {
+		parent::__construct($host, $watcher_cb, $recv_timeout );
+	}
+
+	public function register() {
+		if(!$this->exists(self::CONTAINER)) {
+			print_r("Not Exists node. To Create! ".self::CONTAINER."\n");
+			$this->create(self::CONTAINER, 1, $this->acl);
+		}
+
+		if($this->exists(self::CONTAINER)){
+			print_r("Created Base Node Success! ".self::CONTAINER."\n");
+			print_r("To Created Sub Node!\n");
+			$this->znode = $this->create(self::CONTAINER.'/w-',
+				1,
+				$this->acl,
+				Zookeeper::EPHEMERAL | Zookeeper::SEQUENCE
+			);
+		}else{
+			print_r("Created Failed!\n");
+		}
+
+		$this->znode = str_replace(self::CONTAINER.'/', '', $this->znode);
+
+		printf("I'm registred as: %s\n", $this->znode);
+
+		$watching = $this->watchPrevious();
+
+		if($watching == $this->znode) {
+			printf("Reg: Nobody here, I'm the leader\n");
+			$this->setLeader(true);
+		}
+		else {
+			printf("Reg: I'm watching %s\n", $watching);
+		}
+	}
+
+	public function watchPrevious() {
+		$workers = $this->getChildren(self::CONTAINER);
+		sort($workers);
+		print_r($workers);
+		$size = sizeof($workers);
+		echo "Now Running ".$size." workers!\n";
+		for( $i = 0 ; $i < $size ; $i++) {
+			if($this->znode == $workers[$i]) {
+				if($i > 0) {
+					print_r("Ready to Watch! ".$workers[$i - 1]."\n");
+					$this->get(self::CONTAINER.'/'.$workers[$i - 1], array($this, 'watchNode'));
+					return $workers[$i - 1];
+				}
+
+				return $workers[$i];
+			}
+		}
+
+		throw new Exception(sprintf("Something went very wrong! I can't find myself: %s/%s",
+			self::CONTAINER,
+			$this->znode)
+		);
+	}
+
+	public function watchNode($i, $type, $name) {
+		$watching = $this->watchPrevious();
+		if($watching == $this->znode) {
+			printf("Watch: I'm the new leader!\n");
+			$this->setLeader( true );
+		}else {
+			printf("Watch: I'm %s\n", $watching);
+		}
+	}
+
+	public function isLeader() {
+		return $this->isLeader;
+	}
+
+	public function setLeader($flag) {
+		$this->isLeader = $flag;
+	}
+
+	public function run() {
+		$this->register();
+
+		while(true) {
+			if($this->isLeader() ) {
+				$this->doLeaderJob();
+			}
+			else {
+				$this->doWorkerJob();
+			}
+
+			sleep(2);
+		}
+	}
+
+	public function doLeaderJob() {
+		echo "Job: Leading\n";
+	}
+
+	public function doWorkerJob() {
+		printf("Job: I'm %s\n", $this->znode );
+	}
+
+}
+
+$worker = new Worker('localhost:2181');
+$worker->run();
+?>
+```
+
+打开多个终端都运行:
+
+```bash
+php worker.php
+```
+
+第一个终端:
+
+```bash
+root@dev-localhost # php worker.php
+I'm registred as: w-0000000000
+Nobody here, I'm the leader
+Leading
+Leading
+```
+
+第二个终端:
+
+```bash
+I'm registred as: w-0000000001
+I'm watching w-0000000000
+Working
+Working
+```
+
+第三个终端:
+
+```bash
+I'm registred as: w-0000000002
+I'm watching w-0000000001
+Working
+Working
+```
+
+现在模拟Leader崩溃的情形。使用Ctrl+c或其他方法退出第一个脚本。
+
+刚开始不会有任何变化，worker可以继续工作。后来，ZooKeeper会发现超时，并选举出新的leader(未成功)。
+
+第二个终端:
+
+```bash
+Now Running 2 workers!
+Watch: I'm the new leader!
+Job: Leading
+Job: Leading
+```
+
+虽然这些脚本很容易理解，但是还是有必要对已使用的Zookeeper标志作注释:
+
+```php
+$this->znode = $this->create( self::CONTAINER . '/w-',
+                              null,
+                              $this->acl,
+                              Zookeeper::EPHEMERAL | Zookeeper::SEQUENCE );
+```
+每个znode都是 EPHEMERAL 和 SEQUENCE 的。
+
+常量 ```EPHEMRAL``` 代表当客户端失去连接时移除该znode。这就是为何PHP脚本会知道超时。
+
+常量 ```SEQUENCE``` 代表在每个znode名称后添加顺序标识。我们通过这些唯一标识来标记worker。
