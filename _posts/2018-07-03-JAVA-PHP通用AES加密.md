@@ -289,8 +289,13 @@ class AesEncrypt
         try {
             // 生成随机盐值
             $random = $this->getRandomStr();
+            $text = $random . $text;
 
-            $text = $random . pack("N", strlen($text)) . $text;
+            $pad = ord($text[strlen($text) - 1]);
+            if ($pad > 0 && $pad <= 16) {
+                $text = substr($text, 0, -$pad);
+            }
+
             $iv = substr($this->key, 0, 16);
 
             $encrypted = openssl_encrypt($text, 'AES-256-CBC', $this->key, OPENSSL_RAW_DATA, $iv);
@@ -314,7 +319,7 @@ class AesEncrypt
             $iv = substr($this->key, 0, 16);
             $ciphertext_dec = base64_decode($encrypted);
 
-            $decrypted = openssl_decrypt($ciphertext_dec, 'AES-256-CBC', $this->key, OPENSSL_RAW_DATA, $iv);
+            $decrypted = openssl_decrypt($ciphertext_dec, 'AES-256-CBC', $this->key, OPENSSL_RAW_DATA | OPENSSL_ZERO_PADDING, $iv);
         } catch (Exception $e) {
             return array(ErrorCode::$IllegalBuffer, null);
         }
@@ -414,11 +419,11 @@ class BlankFillEncoder
 
 ```
 $tool = new AesEncrypt('abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG');
-$enc = '2W2nWPGdddGG194ZOwq5QjEBMf5ahwgTLiL/zMTbG1Y=';
 $todo = 'testaesfunction';
 
-$dec = $tool->decrypt($enc);
 $enc = $tool->encrypt($todo);
+$dec = $tool->decrypt($enc);
+
 print_r($dec . PHP_EOL);
 print_r($enc . PHP_EOL);
 ```
