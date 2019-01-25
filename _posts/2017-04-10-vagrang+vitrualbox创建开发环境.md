@@ -84,7 +84,7 @@ VAGRANTFILE_API_VERSION = "2"
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.box = "edengdev-CentOS6.4x86_64"
     config.vm.network "private_network", ip: "192.168.192.192"
-    config.vm.synced_folder "../../sites", "/home/httpd/sites"
+    config.vm.synced_folder "../../sites", "/home/httpd/sites", create:true, owner:"www", group:"www"
     config.vm.provision "shell", inline: "/etc/init.d/nginx.sh start", run: "always"
     config.vm.provision "shell", inline: "/etc/init.d/php-fpm start", run: "always"
     config.vm.provider "virtualbox" do |vb|
@@ -92,6 +92,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
 end
 ```
+
+>这里在绑定目录时添加了 owner, group 参数,表明了它所属的用户和组。这样就不会受本机目录权限的影响导致程序运行时出错。
 
 启动虚拟机
 ---
