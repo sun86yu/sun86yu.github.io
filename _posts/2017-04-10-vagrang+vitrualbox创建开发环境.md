@@ -149,3 +149,54 @@ vagrant halt	// 停止虚拟机
 vagrant destroy	// 删除虚拟机
 vagrant box remove centos7_lnmp	// 从镜像列表移除
 ```
+
+关联已经存在的虚拟机
+---
+>本地使用 virtualbox 创建的虚拟机，然后使用 vagrant 来作为简易的管理。
+
+同样的场景可能是：但有一天没关虚拟机就关电脑了，导致一些文件丢失，其中就有 vagrant 用来和虚拟机关联的，.vagrant/ 目录。
+
+使用 vagrant init 命令可以创建一些配置。它会在当前目录下创建一个隐藏目录，叫 .vagrant，结构如：```.vagrant/machines/default/virtualbox/```
+
+最终文件夹下的文件分别是：
+
+```
+action_provision
+action_set_name
+id
+synced_folders
+```
+
+其中 id  文件中的内容就是和它关联的虚拟机的唯一ID，该文件夹丢失，导致使用 vagrant status 来查看虚拟机时，总是提示未创建。但是该虚拟机在 virtualbox 中确实是存在的，于是，用如下方法来手动关联：
+
+先查看当前所有的 virtualbox 虚拟机：
+
+```
+VBoxManage list vms
+"nginx_web_conf_default_1417763838159_49997" {b969dad8-37d8-4237-8d3c-a01243bb91b3}
+"postdev-servers_default_1416493203261_51912" {00f2a72e-3431-430a-a1c6-25132ecdba63}
+```
+
+每一行的前面双引号中是虚拟机的名称，后面花括号中的虚拟机的ID。
+
+然后再将要关联的虚拟机的ID，写入上面说的对应 vagrant 目录下对应的 id 文件中，如：
+
+```
+echo -n "b969dad8-37d8-4237-8d3c-a01243bb91b3" > ~/Develop/edeng/.vagrant/machines/default/virtualbox/id
+```
+
+然后再查看虚拟机状态：
+
+```
+vagrant status
+
+Current machine states:
+
+default                   poweroff (virtualbox)
+```
+
+发现现在是关机状态，而不再是未创建，这时候就可以成功启动虚拟机了：
+
+```
+vagrant status
+```
