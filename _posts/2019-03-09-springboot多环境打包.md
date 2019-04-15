@@ -46,9 +46,62 @@ pom.xml 中添加:
         </properties>
     </profile>
 </profiles>
+
+<!--spring boot打包指定一个唯一的入口-->
+<build>
+    <plugins>
+        <!--多环境处理-->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-resources-plugin</artifactId>
+            <version>${maven-resources-plugin.version}</version>
+            <executions>
+                <execution>
+                    <id>default-resources</id>
+                    <phase>validate</phase>
+                    <goals>
+                        <goal>copy-resources</goal>
+                    </goals>
+                    <configuration>
+                        <outputDirectory>target/classes</outputDirectory>
+                        <useDefaultDelimiters>false</useDefaultDelimiters>
+                        <delimiters>
+                            <delimiter>#</delimiter>
+                        </delimiters>
+                        <resources>
+                            <resource>
+                                <directory>src/main/resources/</directory>
+                                <filtering>true</filtering>
+                                <includes>
+                                    <include>**/*.xml</include>
+                                    <include>**/*.yml</include>
+                                </includes>
+                            </resource>
+                            <resource>
+                                <directory>src/main/resources/</directory>
+                                <filtering>false</filtering>
+                                <excludes>
+                                    <exclude>**/*.xml</exclude>
+                                    <exclude>**/*.yml</exclude>
+                                </excludes>
+                            </resource>
+                        </resources>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+
+    <resources>
+        <resource>
+            <directory>src/main/resources</directory>
+        </resource>
+    </resources>
+
+</build>
 ```
 
-这里定义了三种环境。将对应三个配置文件。
+这里定义了三种环境。将对应三个配置文件。并且在 plugins 里加了上多环境处理插件。
 
 在项目的 src/main/resource 目录下有四个文件：
 
